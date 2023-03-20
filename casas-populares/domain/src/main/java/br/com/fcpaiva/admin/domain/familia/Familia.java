@@ -96,6 +96,45 @@ public class Familia  extends AggregateRoot<FamiliaId> implements Cloneable{
                 aFamilia.getDeletedAt());
     }
 
+    public Familia activate() {
+        this.deletedAt = null;
+        this.isAtivo = true;
+        this.updatedAt = InstantUtils.now();
+        return this;
+    }
+
+    public Familia deactivate() {
+        if (getDeletedAt() == null) {
+            this.deletedAt = InstantUtils.now();
+        }
+
+        this.isAtivo = false;
+        this.updatedAt = InstantUtils.now();
+        return this;
+    }
+
+    public Familia update(
+            final String aNomePai,
+            final String aNomeMae,
+            final Double aRenda,
+            final int aPontuacao,
+            final List<Dependentes> aDependentesList,
+            final boolean aIsAtivo
+    ) {
+        if (aIsAtivo) {
+            activate();
+        } else {
+            deactivate();
+        }
+        this.nomePai = aNomePai;
+        this.nomeMae = aNomeMae;
+        this.renda = aRenda;
+        this.pontuacao = aPontuacao;
+        this.dependentesList = aDependentesList;
+        this.updatedAt = Instant.now();
+        return this;
+    }
+
     @Override
     public void validate(ValidationHandler handler) {
         new FamiliaValidator(this, handler).validate();

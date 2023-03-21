@@ -43,7 +43,7 @@ public class FamiliaTest {
     public void givenAnInvalidNullName_whenCallNewFamiliaAndValidate_thenShouldReceiveError() {
         final String nomePai = "Nome pai";
         final String nomeMae = null;
-        final Double renda = 899.99;
+        final Double renda = 0.0;
         final var pontuacao = 8;
         final var dependentes = new ArrayList<Dependentes>();
         final var ativo = true;

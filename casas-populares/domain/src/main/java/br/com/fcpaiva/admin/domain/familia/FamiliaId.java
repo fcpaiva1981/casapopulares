@@ -1,37 +1,37 @@
 package br.com.fcpaiva.admin.domain.familia;
 
 import br.com.fcpaiva.admin.domain.Identifier;
+import br.com.fcpaiva.admin.domain.utils.IdUtils;
 import lombok.Getter;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Getter
 public class FamiliaId extends Identifier {
 
     private final String value;
 
-    private FamiliaId(String value) {
-        Objects.requireNonNull(value);
-        this.value = value;
+    private FamiliaId(final String value) {
+        this.value = Objects.requireNonNull(value);
     }
 
-    public static FamiliaId unique(){
-        return  FamiliaId.from(UUID.randomUUID());
+    public static FamiliaId unique() {
+        return FamiliaId.from(IdUtils.uuid());
     }
 
-    public static FamiliaId from(final String anId){
+    public static FamiliaId from(final String anId) {
         return new FamiliaId(anId);
     }
 
-    public static FamiliaId from(final UUID anId){
-        return new FamiliaId(anId.toString().toLowerCase());
+    @Override
+    public String getValue() {
+        return value;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if(o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         final FamiliaId that = (FamiliaId) o;
         return getValue().equals(that.getValue());
     }

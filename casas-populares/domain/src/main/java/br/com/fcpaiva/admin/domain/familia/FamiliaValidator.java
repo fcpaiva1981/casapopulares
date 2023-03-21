@@ -36,5 +36,18 @@ public class FamiliaValidator extends Validator {
             this.validationHandler().append(new Error("'nome mãe' deve ter entre 3 e 255 caracteres"));
             return;
         }
+
+        final var renda = this.familia.getRenda();
+        if(renda == null){
+            this.validationHandler().append(new Error("A renda é obrigatório"));
+            return;
+        }
+
+        if(renda == 0){
+            this.validationHandler().append(new Error("A renda é obrigatório"));
+            return;
+        }
+
+
     }
 }

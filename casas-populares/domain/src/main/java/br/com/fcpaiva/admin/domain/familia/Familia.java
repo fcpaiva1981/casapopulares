@@ -4,14 +4,12 @@ import br.com.fcpaiva.admin.domain.AggregateRoot;
 import br.com.fcpaiva.admin.domain.familia.dependentes.Dependentes;
 import br.com.fcpaiva.admin.domain.utils.InstantUtils;
 import br.com.fcpaiva.admin.domain.validation.ValidationHandler;
-import lombok.Getter;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
 
-@Getter
+
 public class Familia  extends AggregateRoot<FamiliaId> implements Cloneable{
 
     private String nomePai;
@@ -133,6 +131,45 @@ public class Familia  extends AggregateRoot<FamiliaId> implements Cloneable{
         this.dependentesList = aDependentesList;
         this.updatedAt = Instant.now();
         return this;
+    }
+
+    public FamiliaId getId(){
+        return id;
+    }
+    public String getNomePai() {
+        return nomePai;
+    }
+
+    public String getNomeMae() {
+        return nomeMae;
+    }
+
+    public Double getRenda() {
+        return renda;
+    }
+
+    public int getPontuacao() {
+        return pontuacao;
+    }
+
+    public List<Dependentes> getDependentesList() {
+        return dependentesList;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
+    }
+
+    public boolean isAtivo() {
+        return isAtivo;
     }
 
     @Override

@@ -2,8 +2,8 @@ package br.com.fcpaiva.admin.application.familia.retrieve.get;
 
 
 import br.com.fcpaiva.admin.application.UseCaseTest;
-import br.com.fcpaiva.admin.application.familia.create.CreateFamiliaCommand;
 import br.com.fcpaiva.admin.application.familia.create.DefaultCreateFamiliaUseCase;
+import br.com.fcpaiva.admin.domain.exceptions.NotFoundException;
 import br.com.fcpaiva.admin.domain.familia.Familia;
 import br.com.fcpaiva.admin.domain.familia.FamiliaId;
 import br.com.fcpaiva.admin.domain.familia.dependentes.Dependentes;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +71,7 @@ public class GetCategoryByIdUseCaseTest extends UseCaseTest {
     @Test
     public void givenAInvalidId_whenCallsGetCategory_shouldReturnNotFound() {
         final var expectedErrorMessage = "Category with ID 123 was not found";
-        final var expectedId = CategoryID.from("123");
+        final var expectedId = FamiliaId.from("123");
 
         when(familiaGateway.findById(eq(expectedId)))
                 .thenReturn(Optional.empty());

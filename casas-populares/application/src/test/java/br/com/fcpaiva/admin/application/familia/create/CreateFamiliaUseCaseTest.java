@@ -2,20 +2,16 @@ package br.com.fcpaiva.admin.application.familia.create;
 
 
 import br.com.fcpaiva.admin.application.UseCaseTest;
-import br.com.fcpaiva.admin.domain.familia.Familia;
 import br.com.fcpaiva.admin.domain.familia.dependentes.Dependentes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.stubbing.OngoingStubbing;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -130,7 +126,7 @@ public class CreateFamiliaUseCaseTest extends UseCaseTest {
         Assertions.assertNotNull(actualOutput.id());
 
         Mockito.verify(familiaGateway, times(1)).create(argThat(aFamilia ->
-                Objects.equals(expectedName, aFamilia.get())
+                Objects.equals(expectedName, aFamilia.getNomePai())
                         && Objects.equals(expectedMae, aFamilia.getNomeMae())
                         && Objects.equals(expectedIsActive, aFamilia.isAtivo())
                         && Objects.nonNull(aFamilia.getId())

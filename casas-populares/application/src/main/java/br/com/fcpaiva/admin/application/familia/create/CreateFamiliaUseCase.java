@@ -5,6 +5,6 @@ import br.com.fcpaiva.admin.domain.validation.handler.Notification;
 import io.vavr.control.Either;
 
 
-public abstract class CreateFamiliaUseCase extends UseCase<CreateFamiliaUseCase, Either<Notification, CreateFamiliaOutput>> {
+public abstract class CreateFamiliaUseCase extends UseCase<CreateFamiliaCommand, Either<Notification, CreateFamiliaOutput>> {
 
 }

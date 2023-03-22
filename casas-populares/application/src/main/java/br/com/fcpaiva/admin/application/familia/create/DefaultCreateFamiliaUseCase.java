@@ -36,7 +36,6 @@ public class DefaultCreateFamiliaUseCase extends CreateFamiliaUseCase {
 
         return notification.hasError() ? Left(notification) : create(aFamilia);
     }
- 
     private Either<Notification, CreateFamiliaOutput> create(final Familia aFamilia) {
         return Try(() -> this.familiaGateway.create(aFamilia))
                 .toEither()

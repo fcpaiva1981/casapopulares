@@ -1,13 +1,14 @@
 package br.com.fcpaiva.admin.domain.familia;
 
 import br.com.fcpaiva.admin.domain.pagination.Pagination;
+import br.com.fcpaiva.admin.domain.pagination.SearchQuery;
 
 import java.util.Optional;
 
-public interface FamilyGateway {
+public interface FamiliaGateway {
     Familia create(Familia aFamilia);
     void deleteById(FamiliaId anId);
-    Optional<Familia> familiaById(FamiliaId anId);
+    Optional<Familia> findById(FamiliaId anId);
     Familia update(Familia aFamilia);
-    Pagination<Familia> findAll(FamiliaSearchQuery aQuery);
+    Pagination<Familia> findAll(SearchQuery aQuery);
 }

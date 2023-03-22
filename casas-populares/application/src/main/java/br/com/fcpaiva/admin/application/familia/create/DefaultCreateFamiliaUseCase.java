@@ -1,26 +1,45 @@
 package br.com.fcpaiva.admin.application.familia.create;
 
-import br.com.fcpaiva.admin.application.UseCase;
+import br.com.fcpaiva.admin.application.familia.retrieve.get.FamiliaOutput;
 import br.com.fcpaiva.admin.domain.familia.Familia;
-import br.com.fcpaiva.admin.domain.familia.FamilyGateway;
-import br.com.fcpaiva.admin.domain.validation.handler.ThrowsValidationHandler;
+import br.com.fcpaiva.admin.domain.familia.FamiliaGateway;
+import br.com.fcpaiva.admin.domain.validation.handler.Notification;
+import io.vavr.control.Either;
 
-import java.util.ArrayList;
+import java.util.Objects;
 
-public  class DefaultCreateFamiliaUseCase extends UseCase<CreateFamiliaCommand, CreateFamiliaOutput> {
+import static io.vavr.API.Left;
+import static io.vavr.API.Try;
+import static jdk.internal.ref.Cleaner.create;
 
-    private final FamilyGateway familyGateway;
+public class DefaultCreateFamiliaUseCase extends CreateFamiliaUseCase {
 
-    public DefaultCreateFamiliaUseCase(FamilyGateway familyGateway) {
-        this.familyGateway = familyGateway;
+    private final FamiliaGateway familiaGateway;
+
+    public DefaultCreateFamiliaUseCase(final FamiliaGateway familiaGateway) {
+
+        this.familiaGateway = Objects.requireNonNull(familiaGateway);
+    }
+    public Either<Notification, CreateFamiliaOutput> execute(final CreateFamiliaCommand aCommand) {
+        final var nomePai = aCommand.nomePai();
+        final var nomeMae = aCommand.nomeMae();
+        final var renda = aCommand.renda();
+        final var pontuacao = aCommand.pontuacao();
+        final var dependentes = aCommand.dependentesList();
+        final var ativo = aCommand.isAtivo();
+
+        final var notification = Notification.create();
+
+        final var aFamilia = Familia.novaFamilia(nomePai, nomeMae, renda, pontuacao, dependentes, ativo);
+        aFamilia.validate(notification);
+
+        return notification.hasError() ? Left(notification) : create(aCategory);
     }
 
     @Override
-    public CreateFamiliaOutput execute(final CreateFamiliaCommand aCommand){
-
-        final var aFamilia  = Familia.novaFamilia(aCommand.nomePai(),aCommand.nomeMae(),aCommand.renda(),aCommand.pontuacao(),aCommand.dependentesList(),aCommand.isAtivo());
-        aFamilia.validate(new ThrowsValidationHandler());
-        return CreateFamiliaOutput.from(this.familyGateway.create(aFamilia));
+    public Either<Notification, CreateFamiliaOutput> execute(CreateFamiliaUseCase anIn) {
+        return Try(() -> this.familiaGateway.create(aFamilia))
+                .toEither()
+                .bimap(Notification::create, FamiliaOutput::from);
     }
-
 }

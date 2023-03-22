@@ -1,13 +1,15 @@
 package br.com.fcpaiva.admin.application.familia.create;
 
+
 import br.com.fcpaiva.admin.application.UseCaseTest;
-import br.com.fcpaiva.admin.domain.familia.FamilyGateway;
+import br.com.fcpaiva.admin.domain.familia.Familia;
 import br.com.fcpaiva.admin.domain.familia.dependentes.Dependentes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.stubbing.OngoingStubbing;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,6 +18,8 @@ import java.util.Objects;
 
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 public class CreateFamiliaUseCaseTest extends UseCaseTest {
@@ -24,17 +28,18 @@ public class CreateFamiliaUseCaseTest extends UseCaseTest {
     private DefaultCreateFamiliaUseCase useCase;
 
     @Mock
-    private FamilyGateway familyGateway;
+    private br.com.fcpaiva.admin.domain.familia.FamiliaGateway familiaGateway;
 
     @Override
     protected List<Object> getMocks() {
-        return List.of(familyGateway);
+        return List.of(familiaGateway);
     }
 
     @Test
-    public void givenAValidCommand_whenCallsCreateCategory_shoudReturnCategoryId(){
-        final var nomePai = "Pai01";
-        final var nomeMae = "Mae01";
+    public void givenAValidCommand_whenCallsCreateFamilia_shouldReturnFamiliaId() {
+        final var expectedName = "Pai01";
+        final var expectedMae = "A categoria mais assistida";
+        final var expectedIsActive = false;
         final var renda = 899.99;
         final var pontuacao = 8;
         final var dependentes = new ArrayList<Dependentes>();
@@ -45,28 +50,132 @@ public class CreateFamiliaUseCaseTest extends UseCaseTest {
         dependentes.add(Dependentes.adicionarDependente("Filho03", 14, true));
         dependentes.add(Dependentes.adicionarDependente("Filho04", 15, true));
         dependentes.add(Dependentes.adicionarDependente("Filho05", 19, false));
+        final var aCommand =
+                CreateFamiliaCommand.with(expectedName, expectedName, renda,pontuacao,dependentes,ativo, Instant.now());
 
-        final var aCommand = CreateFamiliaCommand.with(nomePai,nomeMae,renda,pontuacao,dependentes,ativo, Instant.now());
-
-        final FamilyGateway familyGateway = Mockito.mock(FamilyGateway.class);
-        when(familyGateway.create(any()))
+        when(familiaGateway.create(any()))
                 .thenAnswer(returnsFirstArg());
 
-        when(familyGateway.create(any()))
-                .thenAnswer(returnsFirstArg());
-
-        final var actualOutput = useCase.execute(aCommand);
+        final var actualOutput = useCase.execute(aCommand).get();
 
         Assertions.assertNotNull(actualOutput);
         Assertions.assertNotNull(actualOutput.id());
 
-        Mockito.verify(familyGateway, Mockito.times(1))
-                .create(Mockito.argThat((aFamily -> Objects.equals(nomePai, aFamily.getNomePai())
-                        && Objects.equals(nomeMae, aFamily.getNomeMae())
-                        && Objects.nonNull(aFamily.getId())
-                        && Objects.nonNull(aFamily.getRenda())
-                        && Objects.nonNull(aFamily.getPontuacao())
-                        && Objects.nonNull(aFamily.getDependentesList().size())
-                        && Objects.nonNull(aFamily.isAtivo()))));
+        Mockito.verify(familiaGateway, times(1)).create(argThat(aFamilia ->
+                Objects.equals(expectedName, aFamilia.getNomePai())
+                        && Objects.equals(expectedMae, aFamilia.getNomeMae())
+                        && Objects.equals(expectedIsActive, aFamilia.isAtivo())
+                        && Objects.nonNull(aFamilia.getId())
+                        && Objects.nonNull(aFamilia.getCreatedAt())
+                        && Objects.nonNull(aFamilia.getUpdatedAt())
+                        && Objects.isNull(aFamilia.getDeletedAt())
+        ));
+    }
+
+
+    @Test
+    public void givenAInvalidName_whenCallsCreateFamilia_thenShouldReturnDomainException() {
+        final String expectedName = null;
+        final var expectedMae = "A categoria mais assistida";
+        final var expectedIsActive = false;
+        final var renda = 899.99;
+        final var pontuacao = 8;
+        final var dependentes = new ArrayList<Dependentes>();
+        final var ativo = true;
+        final var expectedErrorMessage = "'name' should not be null";
+        final var expectedErrorCount = 1;
+
+        dependentes.add(Dependentes.adicionarDependente("Filho01", 8, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho02", 12, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho03", 14, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho04", 15, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho05", 19, false));
+        final var aCommand =
+                CreateFamiliaCommand.with(expectedName, expectedName, renda,pontuacao,dependentes,ativo, Instant.now());
+
+
+        final var notification = useCase.execute(aCommand).getLeft();
+
+        Assertions.assertEquals(expectedErrorCount, notification.getErrors().size());
+        Assertions.assertEquals(expectedErrorMessage, notification.firstError().message());
+
+        Mockito.verify(familiaGateway, times(0)).create(any());
+    }
+
+    @Test
+    public void givenAValidCommandWithInactiveFamilia_whenCallsCreateFamilia_shouldReturnInactiveFamiliaId() {
+        final String expectedName = null;
+        final var expectedMae = "A categoria mais assistida";
+        final var expectedIsActive = false;
+        final var renda = 899.99;
+        final var pontuacao = 8;
+        final var dependentes = new ArrayList<Dependentes>();
+        final var ativo = false;
+
+        dependentes.add(Dependentes.adicionarDependente("Filho01", 8, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho02", 12, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho03", 14, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho04", 15, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho05", 19, false));
+        final var aCommand =
+                CreateFamiliaCommand.with(expectedName, expectedName, renda,pontuacao,dependentes,ativo, Instant.now());
+
+
+        when(familiaGateway.create(any()))
+                .thenAnswer(returnsFirstArg());
+
+        final var actualOutput = useCase.execute(aCommand).get();
+
+        Assertions.assertNotNull(actualOutput);
+        Assertions.assertNotNull(actualOutput.id());
+
+        Mockito.verify(familiaGateway, times(1)).create(argThat(aFamilia ->
+                Objects.equals(expectedName, aFamilia.get())
+                        && Objects.equals(expectedMae, aFamilia.getNomeMae())
+                        && Objects.equals(expectedIsActive, aFamilia.isAtivo())
+                        && Objects.nonNull(aFamilia.getId())
+                        && Objects.nonNull(aFamilia.getCreatedAt())
+                        && Objects.nonNull(aFamilia.getUpdatedAt())
+                        && Objects.nonNull(aFamilia.getDeletedAt())
+        ));
+    }
+
+    @Test
+    public void givenAValidCommand_whenGatewayThrowsRandomException_shouldReturnAException() {
+        final String expectedName = null;
+        final var expectedMae = "A categoria mais assistida";
+        final var expectedIsActive = false;
+        final var renda = 899.99;
+        final var pontuacao = 8;
+        final var dependentes = new ArrayList<Dependentes>();
+        final var ativo = true;
+        final var expectedErrorCount = 1;
+        final var expectedErrorMessage = "Gateway error";
+
+        dependentes.add(Dependentes.adicionarDependente("Filho01", 8, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho02", 12, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho03", 14, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho04", 15, true));
+        dependentes.add(Dependentes.adicionarDependente("Filho05", 19, false));
+        final var aCommand =
+                CreateFamiliaCommand.with(expectedName, expectedName, renda,pontuacao,dependentes,ativo, Instant.now());
+
+        when(familiaGateway.create(any()))
+                .thenThrow(new IllegalStateException(expectedErrorMessage));
+
+        final var notification = useCase.execute(aCommand).getLeft();
+
+        Assertions.assertEquals(expectedErrorCount, notification.getErrors().size());
+        Assertions.assertEquals(expectedErrorMessage, notification.firstError().message());
+
+        Mockito.verify(familiaGateway, times(1)).create(argThat(aFamilia ->
+                Objects.equals(expectedName, aFamilia.getNomePai())
+                        && Objects.equals(expectedMae, aFamilia.getNomeMae())
+                        && Objects.equals(expectedIsActive, aFamilia.isAtivo())
+                        && Objects.nonNull(aFamilia.getId())
+                        && Objects.nonNull(aFamilia.getCreatedAt())
+                        && Objects.nonNull(aFamilia.getUpdatedAt())
+                        && Objects.isNull(aFamilia.getDeletedAt())
+        ));
     }
 }
